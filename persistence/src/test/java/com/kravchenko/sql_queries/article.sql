@@ -1,0 +1,1 @@
+INSERT INTO article VALUES (, 'ivan', CURRENT_DATE, 'something', CURRENT_DATE )
