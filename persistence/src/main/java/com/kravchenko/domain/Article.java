@@ -2,11 +2,12 @@ package com.kravchenko.domain;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by john on 4/16/17.
  */
-@Entity
+@Entity(name = "ARTICLE")
 @Table(name="article")
 public class Article {
 
@@ -21,6 +22,28 @@ public class Article {
     private Date updateDate;
     @Column
     private String author;
+
+    @OneToMany(mappedBy = "article",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Tag> tags;
+
+    @OneToMany(mappedBy = "article", cascade = CascadeType.MERGE, orphanRemoval = false)
+    private List<Expertise> area;
+
+    public List<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public List<Expertise> getArea() {
+        return area;
+    }
+
+    public void setArea(List<Expertise> area) {
+        this.area = area;
+    }
 
     public Date getBeginDate() {
         return beginDate;
