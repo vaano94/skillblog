@@ -63,5 +63,21 @@ public class ArticleTest {
 
     }
 
+    @Test
+    public void testGetArticleByAuthor() {
+        Article article = new Article();
+        article.setAuthor("ivan");
+        article.setContent("21233");
+        article.setBeginDate(new Date());
+        article.setUpdateDate(new Date());
+        articleDao.save(article);
+
+        List<Article> ivan = articleDao.getAuthor("ivan");
+
+        Assert.assertNotNull(ivan);
+
+
+    }
+
 
 }
