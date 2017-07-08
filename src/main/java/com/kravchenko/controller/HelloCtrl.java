@@ -1,16 +1,11 @@
 package com.kravchenko.controller;
 
 import com.kravchenko.domain.Article;
-import com.kravchenko.receiver.Server;
-import org.apache.activemq.Service;
-import org.apache.activemq.command.ActiveMQMessage;
-import org.apache.activemq.command.ActiveMQTextMessage;
+import com.kravchenko.domain.ArticleCriteria;
+import org.apache.activemq.command.ActiveMQObjectMessage;
 import org.apache.activemq.spring.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
-import org.springframework.jms.listener.MessageListenerContainer;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.jms.*;
 import javax.jms.Message;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -76,19 +72,18 @@ public class HelloCtrl {
             //message.setJMSCorrelationID(UUID.randomUUID().toString());
             //producer.send(message);
             
-            jmsTemplate.send(messageQueueName, new MessageCreator() {
-                @Override
-                public Message createMessage(Session session) throws JMSException {
-                    Destination tempDest = session.createTemporaryQueue();
-                    MessageConsumer responseConsumer = session.createConsumer(tempDest);
+            jmsTemplate.send(messageQueueName, innerSession -> {
+                Destination tempDest1 = innerSession.createTemporaryQueue();
+                MessageConsumer responseConsumer1 = innerSession.createConsumer(tempDest1);
 
 //                    responseConsumer.setMessageListener();
 
-                    ObjectMessage message = session.createObjectMessage(article);
-                    message.setJMSCorrelationID(UUID.randomUUID().toString());
-                    System.out.println(" I SENT " + message.getJMSCorrelationID());
-                    return message;
-                }
+                ObjectMessage message1 = innerSession.createObjectMessage(article);
+                message1.setJMSMessageID("ARTICLE_FIND_PAGE");
+                message1.setStringProperty("serviceCode", "ARTICLE_FIND_PAGE");
+                message1.setJMSCorrelationID(UUID.randomUUID().toString());
+                System.out.println(" I SENT " + message1.getJMSCorrelationID());
+                return message1;
             });
 
             Message receive = jmsTemplate.receive(serverQueueName);
@@ -101,6 +96,39 @@ public class HelloCtrl {
         }
 
         return article;
+    }
+
+    @GetMapping(value = "/page/{id}")
+    public List<Article> getArticlePage(@PathVariable Integer id) {
+        List<Article> articles = null;
+        try {
+            MessageProducer producer;
+
+            jmsTemplate.send(messageQueueName, innerSession -> {
+                Destination tempDest1 = innerSession.createTemporaryQueue();
+                ArticleCriteria articleCriteria = new ArticleCriteria();
+                articleCriteria.setOffset(0);
+                articleCriteria.setPageSize(2);
+                ObjectMessage message1 = innerSession.createObjectMessage(articleCriteria);
+                message1.setJMSMessageID("ARTICLE_FIND_PAGE");
+                message1.setStringProperty("serviceCode", "ARTICLE_FIND_PAGE");
+                message1.setJMSCorrelationID(UUID.randomUUID().toString());
+                System.out.println(" I SENT " + message1.getJMSCorrelationID());
+                return message1;
+            });
+
+            Message receive = jmsTemplate.receive(serverQueueName);
+            articles = (List<Article>) ((ActiveMQObjectMessage) receive).getObject();
+            System.out.println(articles.toString());
+            System.out.println("RECEIVED SMTH " + receive.getJMSCorrelationID());
+            System.out.println(articles.toString());
+
+
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+
+        return articles;
     }
 
 //    @Override

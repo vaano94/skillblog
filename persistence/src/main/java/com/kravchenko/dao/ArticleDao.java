@@ -8,7 +8,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Created by john on 4/20/17.
@@ -23,5 +22,14 @@ public interface ArticleDao extends CrudRepository<Article, Long> {
     @Query(value = "SELECT a from ARTICLE a WHERE a.author=:author")
     public List<Article> getAuthor(@Param("author") String author);
 
+    public void deleteArticleById(long id);
+
+
+
+//    @Query("SELECT a from ARTICLE a left join a.tags where a.tags in :tags")
+//    public List<Article> getAllByTags(@Param("tags") String tags);
+//
+//    @Query("SELECT a from ARTICLE a join a.tags where :tag in (SELECT t from tag t) ")
+//    public List<Article> getByTag(@Param("tag") String tag);
 
 }

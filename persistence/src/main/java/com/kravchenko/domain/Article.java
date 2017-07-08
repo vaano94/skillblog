@@ -14,6 +14,7 @@ public class Article implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="article_id", unique = true)
     private Long id;
     @Column
     private String content;
@@ -24,10 +25,10 @@ public class Article implements Serializable {
     @Column
     private String author;
 
-    @OneToMany(mappedBy = "article",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Tag> tags;
 
-    @OneToMany(mappedBy = "article", cascade = CascadeType.MERGE, orphanRemoval = false)
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<Expertise> area;
 
     public List<Tag> getTags() {

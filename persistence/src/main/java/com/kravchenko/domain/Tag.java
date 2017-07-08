@@ -17,7 +17,7 @@ public class Tag {
     @Column
     private String tagName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER,cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(name = "article_id")
     private Article article;
 
@@ -29,7 +29,15 @@ public class Tag {
         this.tagName = tagName;
     }
 
-    public Tag(String tagName) {
+    public Tag(String tagName, Article article) {
         this.tagName = tagName;
+        this.article = article;
+    }
+
+    public Tag(String name) {
+        this.tagName = name;
+    }
+
+    public Tag() {
     }
 }
