@@ -1,5 +1,8 @@
 package com.kravchenko.domain;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -25,10 +28,12 @@ public class Article implements Serializable {
     @Column
     private String author;
 
-    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Tag> tags;
 
-    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = false)
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Expertise> area;
 
     public List<Tag> getTags() {

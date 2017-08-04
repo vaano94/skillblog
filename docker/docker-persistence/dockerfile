@@ -1,0 +1,9 @@
+FROM frolvlad/alpine-oraclejdk8:slim
+MAINTAINER Kravchenko Ivan
+
+COPY persistence-0.0.1-SNAPSHOT.jar persistence.jar
+RUN sh -c 'touch /persistence.jar'
+ENTRYPOINT ["java","-jar","/persistence.jar"]
+
+
+#docker build -t persistence .

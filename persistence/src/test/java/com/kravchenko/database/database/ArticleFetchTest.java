@@ -1,4 +1,4 @@
-package com.kravchenko.database;
+package com.kravchenko.database.database;
 
 import com.kravchenko.dao.TagDao;
 import com.kravchenko.domain.Article;

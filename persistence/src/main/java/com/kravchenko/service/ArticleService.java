@@ -2,13 +2,9 @@ package com.kravchenko.service;
 
 import com.kravchenko.dao.ArticleDao;
 import com.kravchenko.domain.Article;
-import com.kravchenko.domain.Tag;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.sql.JoinType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
@@ -29,7 +25,6 @@ public class ArticleService {
     @Autowired
     private SessionFactory sessionFactory;
 
-//    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRED)
     @Transactional
     public void saveOrUpdateArticle(Article article) {
         dao.save(article);
@@ -41,13 +36,15 @@ public class ArticleService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteArticle(long articleId) {
+    public boolean deleteArticle(long articleId) {
         dao.delete(articleId);
+        return true;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteArticle(Article article) {
+    public boolean deleteArticle(Article article) {
         dao.delete(article);
+        return true;
     }
 
     @Transactional

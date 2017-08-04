@@ -2,7 +2,6 @@ package com.kravchenko.config;
 
 import org.apache.activemq.spring.ActiveMQConnectionFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;

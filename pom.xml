@@ -14,6 +14,7 @@
 
 	<modules>
 		<module>persistence</module>
+		<module>frontend</module>
 	</modules>
 
 	<parent>
@@ -57,11 +58,6 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>1.4.194</version>
-		</dependency>
-		<dependency>
-			<groupId>com.kravchenko</groupId>
-			<artifactId>persistence</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>
@@ -112,6 +108,7 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
+
 
 
 </project>

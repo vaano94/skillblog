@@ -2,16 +2,16 @@ package com.kravchenko.controller;
 
 import com.kravchenko.domain.Article;
 import com.kravchenko.domain.ArticleCriteria;
+import com.kravchenko.util.ArticleActions;
+import com.kravchenko.util.JmsMessageWrapper;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQObjectMessage;
-import org.apache.activemq.spring.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.jms.*;
-import javax.jms.Message;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -19,17 +19,23 @@ import java.util.UUID;
 /**
  * Created by john on 4/16/17.
  */
-@RestController
+@RestController(value = "/api/v1")
 public class HelloCtrl {
 
-    @Autowired
-    JmsTemplate jmsTemplate;
+    private JmsTemplate jmsTemplate;
+    private ActiveMQConnectionFactory connectionFactory;
+    private JmsMessageWrapper jmsWrapper;
 
-    @Autowired
-    ActiveMQConnectionFactory connectionFactory;
     private static String messageBrokerUrl;
     private static String messageQueueName;
     private static String serverQueueName;
+
+    @Autowired
+    public HelloCtrl(ActiveMQConnectionFactory connectionFactory, JmsTemplate jmsTemplate, JmsMessageWrapper wrapper) {
+        this.connectionFactory = connectionFactory;
+        this.jmsTemplate = jmsTemplate;
+        this.jmsWrapper = wrapper;
+    }
 
     static {
         messageBrokerUrl = "localhost:61616";
@@ -71,7 +77,7 @@ public class HelloCtrl {
             message.setJMSReplyTo(tempDest);
             //message.setJMSCorrelationID(UUID.randomUUID().toString());
             //producer.send(message);
-            
+
             jmsTemplate.send(messageQueueName, innerSession -> {
                 Destination tempDest1 = innerSession.createTemporaryQueue();
                 MessageConsumer responseConsumer1 = innerSession.createConsumer(tempDest1);
@@ -96,6 +102,24 @@ public class HelloCtrl {
         }
 
         return article;
+    }
+
+    @PostMapping(value = "/article/delete")
+    @ResponseStatus(HttpStatus.OK)
+    public Boolean deleteArticle(@RequestParam("id") Long articleId) {
+        Boolean deleted = false;
+        System.out.println(articleId);
+        jmsTemplate.send(messageQueueName, (Session sess) ->
+                jmsWrapper
+                        .createMessageWithSession(sess, articleId, ArticleActions.DELETE, ArticleActions.DELETE));
+
+        ActiveMQObjectMessage answer = (ActiveMQObjectMessage) jmsTemplate.receive(serverQueueName);
+        try {
+            deleted = (Boolean) answer.getObject();
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return deleted;
     }
 
     @GetMapping(value = "/page/{id}")
